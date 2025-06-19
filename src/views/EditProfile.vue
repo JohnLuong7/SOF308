@@ -48,24 +48,42 @@
 
       <!-- Buttons -->
       <div class="text-end">
-        <button class="btn btn-secondary me-2" @click="$emit('cancel')">Cancel</button>
+        <button class="btn btn-secondary me-2" @click="goBackToProfile">Cancel</button>
         <button class="btn btn-primary" @click="saveProfile">Save</button>
       </div>
     </div>
   </div>
 </template>
 
+// 👇 script setup đầy đủ
 <script setup>
-import { defineEmits, reactive } from 'vue'
+import { defineEmits, reactive, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import api from '/api' // hoặc '@/api' nếu có jsconfig.json
 
-const emit = defineEmits(['cancel', 'save'])
-
+const router = useRouter()
 const form = reactive({
-  avatar: 'https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-chat/ava3.webp',
-  fullName: 'V-TEC CORPORATION',
-  email: 'vtec@corporation.com',
-  phone: '(+84) 125-680-7412',
-  address: 'Bien Hoa City, Dong Nai Province, Viet Nam',
+  avatar: '',
+  fullName: '',
+  email: '',
+  phone: '',
+  address: '',
+})
+const emit = defineEmits(['save'])
+
+let userId = null
+
+onMounted(async () => {
+  try {
+    const sessionRes = await api.get('/session')
+    userId = sessionRes.data.userId
+
+    const userRes = await api.get(`/users/${userId}`)
+    Object.assign(form, userRes.data)
+  } catch (err) {
+    console.error('Lỗi tải thông tin:', err)
+    alert('Không thể tải thông tin người dùng')
+  }
 })
 
 function onAvatarChange(event) {
@@ -79,7 +97,15 @@ function onAvatarChange(event) {
   }
 }
 
-function saveProfile() {
-  emit('save', { ...form })
+async function saveProfile() {
+  try {
+    await api.put(`/users/${userId}`, { ...form })
+    alert('Lưu thành công')
+    router.push('/profile')
+  } catch (err) {
+    console.error('Lỗi lưu thông tin:', err)
+    alert('Lưu thất bại')
+  }
 }
 </script>
+

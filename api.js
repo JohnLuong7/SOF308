@@ -1,23 +1,29 @@
 // api.js
 import axios from 'axios'
 
-const BASE_URL = 'http://localhost:3000'
+
+const api = axios.create({
+  baseURL: 'https://sof308-json-server.onrender.com',
+})
+
+export default api
+
+
+const BASE_URL = 'https://sof308-json-server.onrender.com'
 const User_URL = `${BASE_URL}/User`
 const Blog_URL = `${BASE_URL}/blogs`
 const Comment_URL = `${BASE_URL}/comment`
 
 // ---------- 🔐 USER / LOGIN ----------
 export async function Login(username, password) {
-  // Sử dụng query params để tìm user
-  const res = await axios.get(User_URL, {
+  const res = await api.get('/User', {
     params: { username, password },
   })
-  // Nếu có user khớp, trả về true (logged in)
   return res.data.length > 0 ? res.data[0] : null
 }
 
 export function getAllUsers() {
-  return axios.get(User_URL)
+  return api.get('/User')
 }
 
 export function getUserByUsername(username) {
@@ -31,7 +37,7 @@ export function createUser(data) {
 }
 
 export function updateUser(id, data) {
-  return axios.put(`${User_URL}/${id}`, data)
+  return api.put(`/User/${id}`, data)
 }
 
 export function deleteUser(id) {
@@ -40,7 +46,7 @@ export function deleteUser(id) {
 
 // ---------- 📝 BLOGS ----------
 export function getAllBlogs() {
-  return axios.get(Blog_URL)
+  return api.get('/blogs')
 }
 
 export function getBlogById(id) {
