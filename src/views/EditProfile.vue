@@ -3,12 +3,8 @@
     <div class="card-body">
       <!-- Avatar Upload -->
       <div class="text-center mb-4">
-        <img
-          :src="form.avatar"
-          alt="Avatar Preview"
-          class="rounded-circle img-thumbnail"
-          style="width: 120px; height: 120px; object-fit: cover"
-        />
+        <img :src="form.avatar" alt="Avatar Preview" class="rounded-circle img-thumbnail"
+          style="width: 120px; height: 120px; object-fit: cover" />
         <div class="mt-2">
           <input type="file" accept="image/*" @change="onAvatarChange" />
         </div>
@@ -19,6 +15,27 @@
         <div class="col-sm-3"><label class="form-label">Full Name</label></div>
         <div class="col-sm-9">
           <input v-model="form.fullName" type="text" class="form-control" />
+        </div>
+      </div>
+
+      <!-- Date of Birth -->
+      <div class="row mb-3">
+        <div class="col-sm-3"><label class="form-label">Date of Birth</label></div>
+        <div class="col-sm-9">
+          <input v-model="form.dob" type="date" class="form-control" />
+        </div>
+      </div>
+
+      <!-- Gender -->
+      <div class="row mb-3">
+        <div class="col-sm-3"><label class="form-label">Gender</label></div>
+        <div class="col-sm-9">
+          <select v-model="form.gender" class="form-select">
+            <option value="">Select gender</option>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+            <option value="other">Other</option>
+          </select>
         </div>
       </div>
 
@@ -49,7 +66,6 @@
       <!-- Buttons -->
       <div class="text-end">
         <button class="btn btn-secondary me-2" @click="goBackToProfile">Cancel</button>
-        <button class="btn btn-secondary me-2" @click="goBackToProfile">Cancel</button>
         <button class="btn btn-primary" @click="saveProfile">Save</button>
       </div>
     </div>
@@ -65,12 +81,14 @@ import api from '../composables/api' // hoặc '@/api' nếu có jsconfig.json
 const router = useRouter()
 
 function goBackToProfile() {
-  router.push('/profile') 
+  router.push('/profile')
 }
 
 const form = reactive({
   avatar: '',
   fullName: '',
+  dob: '',
+  gender: '', 
   email: '',
   phone: '',
   address: '',
@@ -112,15 +130,5 @@ async function saveProfile() {
     console.error('Lỗi lưu thông tin:', err)
     alert('Lưu thất bại')
   }
-async function saveProfile() {
-  try {
-    await api.put(`/users/${userId}`, { ...form })
-    alert('Lưu thành công')
-    router.push('/profile')
-  } catch (err) {
-    console.error('Lỗi lưu thông tin:', err)
-    alert('Lưu thất bại')
-  }
 }
 </script>
-
