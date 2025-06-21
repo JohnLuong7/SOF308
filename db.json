@@ -201,13 +201,27 @@
   ],
   "users": [
     {
-      "id": "1",
+      "id": 1,
       "username": "admin",
+      "password": "admin",
+      "fullName": "V-TEC CORPORATION",
+      "email": "vtec@corporation.com",
+      "phone": "(+84) 125-680-7412",
+      "birthday": "1990-01-01",
+      "address": "Bien Hoa City, Dong Nai Province, Viet Nam",
+      "avatar": "https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-chat/ava3.webp",
       "role": "admin"
     },
     {
       "id": "2",
       "username": "hungvu",
+      "password": "admin",
+      "fullName": "V-TEC CORPORATION",
+      "email": "vtec@corporation.com",
+      "phone": "(+84) 125-680-7412",
+      "birthday": "1990-01-01",
+      "address": "Bien Hoa City, Dong Nai Province, Viet Nam",
+      "avatar": "https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-chat/ava3.webp",
       "role": "user"
     }
   ]

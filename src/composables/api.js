@@ -1,15 +1,21 @@
 // api.js
 import axios from 'axios'
 
-const BASE_URL = 'http://localhost:3000'
-const User_URL = `${BASE_URL}/User`
+const api = axios.create({
+  baseURL: 'https://sof308-json-server-production.up.railway.app',
+})
+
+export default api
+
+const BASE_URL = 'https://sof308-json-server-production.up.railway.app'
+const User_URL = `${BASE_URL}/users`
 const Blog_URL = `${BASE_URL}/blogs`
 const Comment_URL = `${BASE_URL}/comment`
 
 // ---------- 🔐 USER / LOGIN ----------
 export async function Login(username, password) {
   // Sử dụng query params để tìm user
-  const res = await axios.get(User_URL, {
+  const res = await api.get(User_URL, {
     params: { username, password }
   })
   // Nếu có user khớp, trả về true (logged in)
@@ -17,71 +23,71 @@ export async function Login(username, password) {
 }
 
 export function getAllUsers() {
-  return axios.get(User_URL)
+  return api.get(User_URL)
 }
 
 export function getUserByUsername(username) {
-  return axios.get(User_URL, {
+  return api.get(User_URL, {
     params: { username }
   })
 }
 
 export function createUser(data) {
-  return axios.post(User_URL, data)
+  return api.post(User_URL, data)
 }
 
 export function updateUser(id, data) {
-  return axios.put(`${User_URL}/${id}`, data)
+  return api.put(`${User_URL}/${id}`, data)
 }
 
 export function deleteUser(id) {
-  return axios.delete(`${User_URL}/${id}`)
+  return api.delete(`${User_URL}/${id}`)
 }
 
 // ---------- 📝 BLOGS ----------
 export function getAllBlogs() {
-  return axios.get(Blog_URL)
+  return api.get(Blog_URL)
 }
 
 export function getBlogById(id) {
-  return axios.get(`${Blog_URL}/${id}`)
+  return api.get(`${Blog_URL}/${id}`)
 }
 
 export function createBlog(data) {
-  return axios.post(Blog_URL, data)
+  return api.post(Blog_URL, data)
 }
 
 export function updateBlog(id, data) {
-  return axios.put(`${Blog_URL}/${id}`, data)
+  return api.put(`${Blog_URL}/${id}`, data)
 }
 
 export function deleteBlog(id) {
-  return axios.delete(`${Blog_URL}/${id}`)
+  return api.delete(`${Blog_URL}/${id}`)
 }
 
 // ---------- 💬 COMMENTS ----------
 export function getAllComments() {
-  return axios.get(Comment_URL)
+  return api.get(Comment_URL)
 }
 
 export function getCommentById(id) {
-  return axios.get(`${Comment_URL}/${id}`)
+  return api.get(`${Comment_URL}/${id}`)
 }
 
 export function getCommentsByBlogId(blogId) {
-  return axios.get(Comment_URL, {
+  return api.get(Comment_URL, {
     params: { blogId }
   })
 }
 
 export function createComment(data) {
-  return axios.post(Comment_URL, data)
+  return api.post(Comment_URL, data)
 }
 
 export function updateComment(id, data) {
-  return axios.put(`${Comment_URL}/${id}`, data)
+  return api.put(`${Comment_URL}/${id}`, data)
 }
 
 export function deleteComment(id) {
-  return axios.delete(`${Comment_URL}/${id}`)
+  return api.delete(`${Comment_URL}/${id}`)
 }
