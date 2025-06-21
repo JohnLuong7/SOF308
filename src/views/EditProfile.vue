@@ -49,12 +49,14 @@
       <!-- Buttons -->
       <div class="text-end">
         <button class="btn btn-secondary me-2" @click="goBackToProfile">Cancel</button>
+        <button class="btn btn-secondary me-2" @click="goBackToProfile">Cancel</button>
         <button class="btn btn-primary" @click="saveProfile">Save</button>
       </div>
     </div>
   </div>
 </template>
 
+// 👇 script setup đầy đủ
 <script setup>
 import { defineEmits, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
@@ -110,5 +112,15 @@ async function saveProfile() {
     console.error('Lỗi lưu thông tin:', err)
     alert('Lưu thất bại')
   }
+async function saveProfile() {
+  try {
+    await api.put(`/users/${userId}`, { ...form })
+    alert('Lưu thành công')
+    router.push('/profile')
+  } catch (err) {
+    console.error('Lỗi lưu thông tin:', err)
+    alert('Lưu thất bại')
+  }
 }
 </script>
+
