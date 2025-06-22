@@ -48,35 +48,29 @@
         <input class="form-control" type="search" placeholder="Tìm kiếm trên V-TEC" />
       </form>
 
+      <div v-if="!isAuthenticated">
+        <router-link to="/login" class="btn btn-outline-primary btn-sm m-1">Đăng nhập</router-link>
+        <router-link to="/register" class="btn btn-outline-primary btn-sm m-1">Đăng ký</router-link>
+      </div>
+
       <!-- Avatar Dropdown -->
-      <div class="dropdown">
-        <a
-          class="d-flex align-items-center text-decoration-none dropdown-toggle"
-          href="#"
-          id="dropdownUser"
-          data-bs-toggle="dropdown"
-          aria-expanded="false"
-        >
-          <img
-            src="https://i.pravatar.cc/40?img=3"
-            alt="avatar"
-            class="rounded-circle me-2"
-            width="40"
-            height="40"
-          />
-          <span class="d-none d-md-inline fw-semibold text-dark">Toàn</span>
+      <div class="dropdown" v-else>
+        <a class="d-flex align-items-center text-decoration-none dropdown-toggle" href="#" id="dropdownUser"
+          data-bs-toggle="dropdown" aria-expanded="false">
+          <img :src="profile.avatar" alt="avatar" class="rounded-circle me-2" width="40" height="40" />
+          <span class="d-none d-md-inline fw-semibold text-dark">{{ profile.fullName }}</span>
         </a>
         <ul class="dropdown-menu dropdown-menu-end" style="overflow: hidden">
           <li><router-link class="dropdown-item" to="/profile">Trang cá nhân</router-link></li>
           <li><router-link class="dropdown-item" to="/my-posts">Bài viết của tôi</router-link></li>
-          <li><hr class="dropdown-divider" /></li>
           <li>
-            <a class="dropdown-item text-danger" href="#" @click.prevent="logout">Đăng xuất</a>
+            <hr class="dropdown-divider" />
           </li>
           <li>
-            <router-link class="dropdown-item text-danger" to="/admin"
-              >Chuyển sang Admin</router-link
-            >
+            <a class="dropdown-item text-danger" href="#" @click.prevent="handleLogout">Đăng xuất</a>
+          </li>
+          <li v-if="isAdmin()">
+            <router-link class="dropdown-item text-danger" to="/admin">Chuyển sang Admin</router-link>
           </li>
         </ul>
       </div>
@@ -84,23 +78,11 @@
   </nav>
 </template>
 
-<script>
-export default {
-  methods: {
-    logout() {
-      // TODO: Xoá token / thông tin đăng nhập khỏi localStorage
-      // Chuyển hướng về trang login hoặc home
-      localStorage.removeItem('userToken')
-      this.$router.push('/login')
-    },
-  },
-}
-</script>
-
 <style scoped>
 * {
   z-index: 9999 !important;
 }
+
 .dropdown-menu {
   position: absolute !important;
   z-index: 9999 !important;
@@ -111,3 +93,21 @@ img.rounded-circle {
   object-fit: cover;
 }
 </style>
+
+<script setup>
+import { computed } from 'vue'
+import { useAuth } from '@/composables/auth'
+
+const { currentUser, isAuthenticated, isAdmin, logout } = useAuth()
+
+const profile = computed(() => ({
+  avatar: currentUser.value?.avatar || 'https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-chat/ava3.webp',
+  fullName: currentUser.value?.fullName || 'Người dùng'
+}))
+
+function handleLogout() {
+  logout();
+  reloadCounter.value++;
+  fetchStats(); // Refresh stats
+}
+</script>

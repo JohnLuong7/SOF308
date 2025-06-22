@@ -1,17 +1,18 @@
 import { ref, computed } from 'vue';
+import axios from 'axios';
+
+const BASE_URL = 'https://sof308-json-server-production.up.railway.app';
+const Posts_URL = `${BASE_URL}/posts`;
+const Reactions_URL = `${BASE_URL}/reactions`;
+const Comments_URL = `${BASE_URL}/comments`;
 
 export function useStats() {
   const posts = ref([]);
   const reactions = ref([]);
-  const views = ref([]);
   const comments = ref([]);
 
   // Computed statistics
   const totalPosts = computed(() => posts.value.length);
-  
-  const totalViews = computed(() => {
-    return posts.value.reduce((sum, post) => sum + (post.viewCount || 0), 0);
-  });
   
   const totalLikes = computed(() => {
     return reactions.value.filter(r => r.type === 'like').length;
@@ -26,81 +27,95 @@ export function useStats() {
   // Fetch all data
   async function fetchStats() {
     try {
-      const [postsRes, reactionsRes, viewsRes, commentsRes] = await Promise.all([
-        fetch('http://localhost:3001/posts'),
-        fetch('http://localhost:3001/reactions'),
-        fetch('http://localhost:3001/views'),
-        fetch('http://localhost:3001/comments')
+      const [postsRes, reactionsRes, commentsRes] = await Promise.all([
+        axios.get(Posts_URL),
+        axios.get(Reactions_URL),
+        axios.get(Comments_URL)
       ]);
 
-      posts.value = await postsRes.json();
-      reactions.value = await reactionsRes.json();
-      views.value = await viewsRes.json();
-      comments.value = await commentsRes.json();
+      posts.value = postsRes.data;
+      reactions.value = reactionsRes.data;
+      comments.value = commentsRes.data;
     } catch (error) {
       console.error('Error fetching stats:', error);
     }
   }
 
-  // Update post view count
-  async function incrementViewCount(postId) {
+  // Fetch posts only
+  async function fetchPosts() {
     try {
-      // Add view record
-      const viewRecord = {
-        id: Date.now().toString(),
-        postId: postId,
-        userId: getCurrentUserId(),
-        ipAddress: await getClientIP(),
-        createdAt: new Date().toISOString()
-      };
-
-      await fetch('http://localhost:3001/views', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(viewRecord)
-      });
-
-      // Update post view count
-      const post = posts.value.find(p => p.id === postId);
-      if (post) {
-        post.viewCount = (post.viewCount || 0) + 1;
-        await fetch(`http://localhost:3001/posts/${postId}`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ viewCount: post.viewCount })
-        });
-      }
+      const res = await axios.get(Posts_URL);
+      posts.value = res.data;
+      return res.data;
     } catch (error) {
-      console.error('Error incrementing view count:', error);
+      console.error('Error fetching posts:', error);
+      return [];
     }
   }
 
-  function getCurrentUserId() {
-    // Get from auth or session
-    return 2; // Default user
+  // Fetch reactions only
+  async function fetchReactions() {
+    try {
+      const res = await axios.get(Reactions_URL);
+      reactions.value = res.data;
+      return res.data;
+    } catch (error) {
+      console.error('Error fetching reactions:', error);
+      return [];
+    }
   }
 
-  async function getClientIP() {
+  // Fetch comments only
+  async function fetchComments() {
     try {
-      const response = await fetch('https://api.ipify.org?format=json');
-      const data = await response.json();
-      return data.ip;
-    } catch {
-      return '127.0.0.1';
+      const res = await axios.get(Comments_URL);
+      comments.value = res.data;
+      return res.data;
+    } catch (error) {
+      console.error('Error fetching comments:', error);
+      return [];
+    }
+  }
+
+  // Get stats for specific post
+  async function getPostStats(postId) {
+    try {
+      const [reactionsRes, commentsRes] = await Promise.all([
+        axios.get(Reactions_URL, { params: { postId } }),
+        axios.get(Comments_URL, { params: { postId } })
+      ]);
+
+      const postReactions = reactionsRes.data;
+      const postComments = commentsRes.data;
+
+      return {
+        likes: postReactions.filter(r => r.type === 'like').length,
+        dislikes: postReactions.filter(r => r.type === 'dislike').length,
+        comments: postComments.length
+      };
+    } catch (error) {
+      console.error('Error fetching post stats:', error);
+      return { likes: 0, dislikes: 0, comments: 0 };
     }
   }
 
   return {
+    // Data
     posts,
     reactions,
-    views,
     comments,
+    
+    // Computed stats
     totalPosts,
-    totalViews,
     totalLikes,
     totalDislikes,
     totalComments,
+    
+    // Methods
     fetchStats,
-    incrementViewCount
+    fetchPosts,
+    fetchReactions,
+    fetchComments,
+    getPostStats
   };
 }
